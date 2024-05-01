@@ -44,6 +44,7 @@ export const BottomSheet: RneFunctionComponent<BottomSheetProps> = ({
   isVisible = false,
   modalProps = {},
   children,
+  disableScroll = false,
   scrollViewProps = {},
   ...rest
 }) => {
@@ -69,8 +70,12 @@ export const BottomSheet: RneFunctionComponent<BottomSheetProps> = ({
         pointerEvents="box-none"
         {...rest}
       >
-        <View>
-          <ScrollView {...scrollViewProps}>{children}</ScrollView>
+          <View>
+          {disableScroll ? (
+            <View>{children}</View>
+          ) : (
+            <ScrollView {...scrollViewProps}>{children}</ScrollView>
+          )}
         </View>
       </SafeAreaView>
     </Modal>
