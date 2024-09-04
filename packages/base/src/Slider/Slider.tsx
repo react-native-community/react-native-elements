@@ -489,18 +489,22 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
     (thumbStart: Animated.Animated) => {
       const minimumTrackStyle: StyleProp<any> = {
         position: 'absolute',
+        transformOrigin: 'left top',
       };
       if (!allMeasured) {
         minimumTrackStyle.height = 0;
         minimumTrackStyle.width = 0;
       } else if (isVertical) {
-        minimumTrackStyle.height = Animated.add(
-          thumbStart,
-          thumbSize.height / 2
-        );
+        minimumTrackStyle.height = 1;
+        minimumTrackStyle.transform = [
+          { scaleY: Animated.add(thumbStart, thumbSize.height / 2) },
+        ];
         minimumTrackStyle.marginLeft = trackSize.width * TRACK_STYLE;
       } else {
-        minimumTrackStyle.width = Animated.add(thumbStart, thumbSize.width / 2);
+        minimumTrackStyle.width = 1;
+        minimumTrackStyle.transform = [
+          { scaleX: Animated.add(thumbStart, thumbSize.width / 2) },
+        ];
         minimumTrackStyle.marginTop = trackSize.height * TRACK_STYLE;
       }
       return minimumTrackStyle;
