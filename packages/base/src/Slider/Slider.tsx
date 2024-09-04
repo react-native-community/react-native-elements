@@ -490,6 +490,7 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
       const minimumTrackStyle: StyleProp<any> = {
         position: 'absolute',
         transformOrigin: 'left top',
+        borderRadius: 0,
       };
       if (!allMeasured) {
         minimumTrackStyle.height = 0;
@@ -499,24 +500,15 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
         minimumTrackStyle.transform = [
           { scaleY: Animated.add(thumbStart, thumbSize.height / 2) },
         ];
-        minimumTrackStyle.marginLeft = trackSize.width * TRACK_STYLE;
       } else {
         minimumTrackStyle.width = 1;
         minimumTrackStyle.transform = [
           { scaleX: Animated.add(thumbStart, thumbSize.width / 2) },
         ];
-        minimumTrackStyle.marginTop = trackSize.height * TRACK_STYLE;
       }
       return minimumTrackStyle;
     },
-    [
-      allMeasured,
-      isVertical,
-      thumbSize.height,
-      thumbSize.width,
-      trackSize.height,
-      trackSize.width,
-    ]
+    [allMeasured, isVertical, thumbSize.height, thumbSize.width]
   );
 
   const panResponder = useMemo(
@@ -574,20 +566,19 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
           mainStyles.track,
           isVertical ? mainStyles.trackVertical : mainStyles.trackHorizontal,
           appliedTrackStyle,
-          { backgroundColor: maximumTrackTintColor },
+          { backgroundColor: maximumTrackTintColor, overflow: 'hidden' },
         ])}
         onLayout={measureTrack}
-      />
-
-      <Animated.View
-        testID="RNE__Slider_Track_minimum"
-        style={StyleSheet.flatten([
-          mainStyles.track,
-          isVertical ? mainStyles.trackVertical : mainStyles.trackHorizontal,
-          appliedTrackStyle,
-          minimumTrackStyle,
-        ])}
-      />
+      >
+        <Animated.View
+          testID="RNE__Slider_Track_minimum"
+          style={StyleSheet.flatten([
+            isVertical ? mainStyles.trackVertical : mainStyles.trackHorizontal,
+            appliedTrackStyle,
+            minimumTrackStyle,
+          ])}
+        />
+      </View>
       <SliderThumb
         isVisible={allMeasured}
         onLayout={measureThumb}
