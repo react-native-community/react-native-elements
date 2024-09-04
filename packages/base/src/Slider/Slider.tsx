@@ -24,7 +24,6 @@ import { SliderThumb } from './components/SliderThumb';
 
 const TRACK_SIZE = 4;
 const THUMB_SIZE = 40;
-const TRACK_STYLE = Platform.select({ web: 0, default: -1 });
 const DEFAULT_ANIMATION_CONFIGS = {
   spring: {
     friction: 7,
@@ -52,7 +51,8 @@ const getBoundedValue = (
 const handlePanResponderRequestEnd = () => false;
 
 // Should we become active when the user moves a touch over the thumb?
-const handleMoveShouldSetPanResponder = () => !TRACK_STYLE;
+const SHOULD_MOVE_SET_PAN_RESPONDER = Platform.OS === 'web';
+const handleMoveShouldSetPanResponder = () => SHOULD_MOVE_SET_PAN_RESPONDER;
 
 type Sizable = {
   width: number;
@@ -63,7 +63,6 @@ type Sizable = {
 enum SizableVars {
   containerSize = 'containerSize',
   thumbSize = 'thumbSize',
-  trackSize = 'trackSize',
 }
 
 // enum to track event types
@@ -185,7 +184,6 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
     width: 0,
     height: 0,
   });
-  const [trackSize, setTrackSize] = useState<Sizable>({ width: 0, height: 0 });
   const [thumbSize, setThumbSize] = useState<Sizable>({ width: 0, height: 0 });
   const isVertical = orientation === 'vertical';
 
@@ -196,7 +194,6 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
       const varInfo = {
         containerSize: { size: containerSize, setSize: setContainerSize },
         thumbSize: { size: thumbSize, setSize: setThumbSize },
-        trackSize: { size: trackSize, setSize: setTrackSize },
       };
       const { size, setSize } = varInfo[name];
 
@@ -210,7 +207,7 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
       };
       setSize(newSize);
     },
-    [containerSize, isVertical, thumbSize, trackSize]
+    [containerSize, isVertical, thumbSize]
   );
 
   // use an effect to update allMeasured when sizes change
@@ -221,9 +218,7 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
           containerSize.height &&
           containerSize.width &&
           thumbSize.height &&
-          thumbSize.width &&
-          trackSize.height &&
-          trackSize.width
+          thumbSize.width
         )
       ),
     [
@@ -231,17 +226,11 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
       containerSize.width,
       thumbSize.height,
       thumbSize.width,
-      trackSize.height,
-      trackSize.width,
     ]
   );
 
   const measureContainer = useCallback(
     (event) => handleMeasure(SizableVars.containerSize, event),
-    [handleMeasure]
-  );
-  const measureTrack = useCallback(
-    (event) => handleMeasure(SizableVars.trackSize, event),
     [handleMeasure]
   );
   const measureThumb = useCallback(
@@ -489,30 +478,26 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
     (thumbStart: Animated.Animated) => {
       const minimumTrackStyle: StyleProp<any> = {
         position: 'absolute',
+        transformOrigin: 'left top',
+        borderRadius: 0,
       };
       if (!allMeasured) {
         minimumTrackStyle.height = 0;
         minimumTrackStyle.width = 0;
       } else if (isVertical) {
-        minimumTrackStyle.height = Animated.add(
-          thumbStart,
-          thumbSize.height / 2
-        );
-        minimumTrackStyle.marginLeft = trackSize.width * TRACK_STYLE;
+        minimumTrackStyle.height = 1;
+        minimumTrackStyle.transform = [
+          { scaleY: Animated.add(thumbStart, thumbSize.height / 2) },
+        ];
       } else {
-        minimumTrackStyle.width = Animated.add(thumbStart, thumbSize.width / 2);
-        minimumTrackStyle.marginTop = trackSize.height * TRACK_STYLE;
+        minimumTrackStyle.width = 1;
+        minimumTrackStyle.transform = [
+          { scaleX: Animated.add(thumbStart, thumbSize.width / 2) },
+        ];
       }
       return minimumTrackStyle;
     },
-    [
-      allMeasured,
-      isVertical,
-      thumbSize.height,
-      thumbSize.width,
-      trackSize.height,
-      trackSize.width,
-    ]
+    [allMeasured, isVertical, thumbSize.height, thumbSize.width]
   );
 
   const panResponder = useMemo(
@@ -570,20 +555,18 @@ export const Slider: RneFunctionComponent<SliderProps> = ({
           mainStyles.track,
           isVertical ? mainStyles.trackVertical : mainStyles.trackHorizontal,
           appliedTrackStyle,
-          { backgroundColor: maximumTrackTintColor },
+          { backgroundColor: maximumTrackTintColor, overflow: 'hidden' },
         ])}
-        onLayout={measureTrack}
-      />
-
-      <Animated.View
-        testID="RNE__Slider_Track_minimum"
-        style={StyleSheet.flatten([
-          mainStyles.track,
-          isVertical ? mainStyles.trackVertical : mainStyles.trackHorizontal,
-          appliedTrackStyle,
-          minimumTrackStyle,
-        ])}
-      />
+      >
+        <Animated.View
+          testID="RNE__Slider_Track_minimum"
+          style={StyleSheet.flatten([
+            isVertical ? mainStyles.trackVertical : mainStyles.trackHorizontal,
+            appliedTrackStyle,
+            minimumTrackStyle,
+          ])}
+        />
+      </View>
       <SliderThumb
         isVisible={allMeasured}
         onLayout={measureThumb}
