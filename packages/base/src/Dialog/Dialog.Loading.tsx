@@ -20,7 +20,7 @@ export interface DialogLoadingProps {
 /** `DialogLoader` allows adding loader to the Dialog. Loader is simply ActivityIndicator. */
 export const DialogLoading: RneFunctionComponent<DialogLoadingProps> = ({
   loadingStyle,
-  loadingProps,
+  loadingProps = { size: 'large' },
   theme = defaultTheme,
 }) => {
   return (
@@ -34,10 +34,6 @@ export const DialogLoading: RneFunctionComponent<DialogLoadingProps> = ({
       />
     </View>
   );
-};
-
-DialogLoading.defaultProps = {
-  loadingProps: { size: 'large' },
 };
 
 const styles = StyleSheet.create({
