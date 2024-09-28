@@ -25,17 +25,17 @@ export type TextProps = TextProperties & {
 
 const TextElement: RneFunctionComponent<TextProps> = (props) => {
   const {
-    style,
+    style = {},
     theme,
     children = '',
-    h1,
-    h2,
-    h3,
-    h4,
-    h1Style,
-    h2Style,
-    h3Style,
-    h4Style,
+    h1 = false,
+    h2 = false,
+    h3 = false,
+    h4 = false,
+    h1Style = {},
+    h2Style = {},
+    h3Style = {},
+    h4Style = {},
     ...rest
   } = props;
 
@@ -62,18 +62,6 @@ const TextElement: RneFunctionComponent<TextProps> = (props) => {
       {children}
     </Text>
   );
-};
-
-TextElement.defaultProps = {
-  h1: false,
-  h2: false,
-  h3: false,
-  h4: false,
-  style: {},
-  h1Style: {},
-  h2Style: {},
-  h3Style: {},
-  h4Style: {},
 };
 
 const styles = StyleSheet.create({
